@@ -22,6 +22,9 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 }
 
 openApiGenerate {
@@ -48,10 +51,27 @@ sourceSets {
             srcDirs += layout.buildDirectory.dir("generated/openapi/src/main/kotlin").get().asFile
         }
     }
+    integrationTest {
+        kotlin {
+            srcDirs = ['src/integrationTest/kotlin']
+        }
+        compileClasspath += sourceSets.test.runtimeClasspath
+        runtimeClasspath += sourceSets.test.runtimeClasspath
+    }
 }
 
 compileKotlin.dependsOn tasks.openApiGenerate
 
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+}
+
+check.dependsOn integrationTest
 
 test {
     useJUnitPlatform()

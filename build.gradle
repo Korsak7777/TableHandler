@@ -1,0 +1,58 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '2.3.21'
+    id 'org.springframework.boot' version '4.1.0-RC1'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id("org.openapi.generator") version "7.14.0"
+
+}
+
+group = 'ru.v.fapc.tablehandler'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // для генерации openApi
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.3'
+    implementation 'jakarta.validation:jakarta.validation-api'
+
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+
+}
+
+openApiGenerate {
+    generatorName = "kotlin-spring"
+    inputSpec = "$projectDir/openApi/openapi.yaml".toString()
+    outputDir = layout.buildDirectory.dir("generated/openapi").get().asFile.absolutePath
+
+    apiPackage = "com.example.api"
+    modelPackage = "com.example.model"
+
+    configOptions = [
+            interfaceOnly      : "true",        // Генерировать только интерфейсы
+            useSpringBoot3     : "true",        // Для Spring Boot 3 (использует jakarta.*)
+            exceptionHandler   : "false",       // Не генерировать встроенный обработчик ошибок
+            gradleBuildFile    : "false",       // Не создавать лишний build.gradle в папке генерации
+            enumPropertyNaming : "UPPERCASE",    // Принудительный UPPERCASE для Enum
+            useTags            : "true",        // Генерировать отдельный интерфейс на каждый тег (включая x-controller-name)
+    ]
+}
+
+sourceSets {
+    main {
+        kotlin {
+            srcDirs += layout.buildDirectory.dir("generated/openapi/src/main/kotlin").get().asFile
+        }
+    }
+}
+
+compileKotlin.dependsOn tasks.openApiGenerate
+
+
+test {
+    useJUnitPlatform()
+}

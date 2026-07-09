@@ -59,7 +59,9 @@ components:
           description: Metadata associated with the table (key-value pairs)
         table:
           type: string
-          example: "[[1,2],[3,4]]"
+          example: "Заголовок 1;Заголовок 2
+Строка 1 Колонки 1;Строка 1 Колонки 2
+Строка 2 Колонки 1;Строка 2 Колонки 2"
           description: Table data in string representation (e.g., JSON, CSV, or custom format)
       required:
         - metaData

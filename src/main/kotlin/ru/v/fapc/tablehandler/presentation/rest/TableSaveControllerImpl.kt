@@ -6,6 +6,7 @@ import com.example.model.SaveCommand
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 import ru.v.fapc.tablehandler.application.SaveTableUseCase
+import ru.v.fapc.tablehandler.domain.dto.SaveCommandDto
 import ru.v.fapc.tablehandler.utils.getLogger
 import java.util.UUID
 
@@ -22,11 +23,18 @@ open class TableSaveControllerImpl(
     override fun saveTable(saveCommand: SaveCommand): ResponseEntity<ResultTableDto> {
         log.info("Saving tables: $saveCommand")
 
-        val res = saveTableUseCase.saveTable(saveCommand)
+        val res = saveTableUseCase.saveTable(saveCommand.toDto())
 
         log.info("Success sum tables. Result table id - $res")
 
         return ResponseEntity.ok().body(ResultTableDto(UUID.randomUUID()))
     }
+
+    private fun SaveCommand.toDto() =
+        SaveCommandDto(
+            this.metaData["type"],
+            this.metaData["source"],
+            this.table
+        )
 
 }

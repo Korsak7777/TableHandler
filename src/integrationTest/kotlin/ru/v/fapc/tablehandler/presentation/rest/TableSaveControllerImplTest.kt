@@ -3,6 +3,7 @@ package ru.v.fapc.tablehandler.presentation.rest
 import com.example.model.ResultTableDto
 import com.example.model.SaveCommand
 import jakarta.servlet.ServletException
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import ru.v.fapc.tablehandler.SoftAssertionsExtension
 import ru.v.fapc.tablehandler.application.SaveTableUseCase
+import ru.v.fapc.tablehandler.domain.dto.SaveCommandDto
 import tools.jackson.databind.json.JsonMapper
 import java.util.UUID
 
@@ -40,7 +42,7 @@ class TableSaveControllerImplIntegrationTest {
             table = "[[1,2],[3,4]]"
         )
         val expectedResult = ResultTableDto(UUID.randomUUID())
-        doReturn(expectedResult).whenever(saveTableUseCase).saveTable(any<SaveCommand>())
+        doReturn(expectedResult).whenever(saveTableUseCase).saveTable(any<SaveCommandDto>())
 
         // When
         val result = mockMvc.perform(
@@ -66,7 +68,7 @@ class TableSaveControllerImplIntegrationTest {
             table = "[[1]]"
         )
         doThrow(RuntimeException("Database error"))
-            .whenever(saveTableUseCase).saveTable(any<SaveCommand>())
+            .whenever(saveTableUseCase).saveTable(any<SaveCommandDto>())
 
         // When
         val result = runCatching {
@@ -88,8 +90,8 @@ class TableSaveControllerImplIntegrationTest {
             table = "[[1,2,3],[4,5,6]]"
         )
         val expectedResult = ResultTableDto(UUID.randomUUID())
-        doReturn(expectedResult).whenever(saveTableUseCase).saveTable(any<SaveCommand>())
-        val commandCaptor = argumentCaptor<SaveCommand>()
+        doReturn(expectedResult).whenever(saveTableUseCase).saveTable(any<SaveCommandDto>())
+        val commandCaptor = argumentCaptor<SaveCommandDto>()
 
         // When
         mockMvc.perform(
@@ -102,10 +104,8 @@ class TableSaveControllerImplIntegrationTest {
         // Then
         verify(saveTableUseCase).saveTable(commandCaptor.capture())
         val capturedCommand = commandCaptor.firstValue
-        org.assertj.core.api.Assertions.assertThat(capturedCommand.metaData)
-            .containsEntry("author", "test-user")
-            .containsEntry("source", "import")
-        org.assertj.core.api.Assertions.assertThat(capturedCommand.table)
+        assertThat(capturedCommand.source).isEqualTo("import")
+        assertThat(capturedCommand.table)
             .isEqualTo("[[1,2,3],[4,5,6]]")
     }
 

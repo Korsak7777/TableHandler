@@ -1,0 +1,67 @@
+openapi: 3.0.1
+info:
+  title: Table Handler API
+  version: "1.0"
+  description: API for table operations, including summing
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /table/save:
+    post:
+      tags:
+        - TableSaveController
+      summary: Save a table
+      description: Saves a table with metadata to the database
+      operationId: saveTable
+      x-controller-name: TableSaveController
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveCommand'
+        required: true
+      responses:
+        "200":
+          description: Table saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultTableDto'
+        "400":
+          description: Invalid input (e.g., missing or empty fields)
+        "500":
+          description: Internal server error
+
+components:
+  schemas:
+    ResultTableDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+          description: Generated ID of the result table
+      required:
+        - id
+      description: Result of table summation
+    SaveCommand:
+      type: object
+      properties:
+        metaData:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            "author": "user123"
+            "source": "import"
+          description: Metadata associated with the table (key-value pairs)
+        table:
+          type: string
+          example: "[[1,2],[3,4]]"
+          description: Table data in string representation (e.g., JSON, CSV, or custom format)
+      required:
+        - metaData
+        - table
+      description: Command to save a table with metadata

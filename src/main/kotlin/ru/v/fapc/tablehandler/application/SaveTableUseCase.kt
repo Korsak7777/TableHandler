@@ -1,17 +1,21 @@
 package ru.v.fapc.tablehandler.application
 
-import com.example.model.ResultTableDto
-import com.example.model.SaveCommand
 import org.springframework.stereotype.Service
-import java.util.UUID
+import org.springframework.transaction.annotation.Transactional
+import ru.v.fapc.tablehandler.domain.TableAggregate
+import ru.v.fapc.tablehandler.domain.dto.SaveCommandDto
+import ru.v.fapc.tablehandler.domain.repository.TableWriter
 
 @Service
-class SaveTableUseCase {
-    fun saveTable(saveCommand: SaveCommand) =
-        saveCommand.let {
-        //            1. TODO достать таблицы из БД.
-        //            2. TODO просуммировать таблицы
-        //            3. TODO вернуть результат
-            ResultTableDto(UUID.randomUUID())
-        }
+class SaveTableUseCase(
+    private val tableWriter: TableWriter
+) {
+    // 1. TODO достать таблицу на уровне контроллера и поместить в VO таблицы. Проверки на минимальную высоту и ширину
+    // 2. TODO на основе VO таблицы сохранить таблицу и метаданные (тип, источник)
+    // 3. TODO вернуть id сохраненной таблицы
+    @Transactional
+    fun saveTable(saveCommandDto: SaveCommandDto) =
+        TableAggregate.create(saveCommandDto)
+            .map { tableWriter.writeTable(it) }
+            .map { it }
 }

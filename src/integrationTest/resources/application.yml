@@ -1,4 +1,4 @@
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.yaml
+    enabled: true

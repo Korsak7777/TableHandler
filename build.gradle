@@ -1,9 +1,14 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.3.21'
+    id 'org.jetbrains.kotlin.plugin.allopen' version '2.3.21'
     id 'org.springframework.boot' version '4.1.0-RC1'
     id 'io.spring.dependency-management' version '1.1.6'
     id("org.openapi.generator") version "7.14.0"
 
+}
+
+allOpen {
+    annotations("org.springframework.stereotype.Component", "org.springframework.stereotype.Service", "org.springframework.stereotype.Repository", "org.springframework.web.bind.annotation.RestController", "org.springframework.web.bind.annotation.Controller", "org.springframework.context.annotation.Configuration")
 }
 
 group = 'ru.v.fapc.tablehandler'
@@ -16,6 +21,9 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-liquibase'
+
+    runtimeOnly 'org.postgresql:postgresql'
 
     // для генерации openApi
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.3'

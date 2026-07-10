@@ -5,10 +5,10 @@ import java.util.UUID
 
 @ConsistentCopyVisibility
 data class TableAggregate private constructor(
-    private val id: UUID?,
-    private val table: Table,
-    private val tableType: TableType,
-    private val tableSource: TableSource
+    val id: UUID?,
+    val table: Table,
+    val tableType: TableType,
+    val tableSource: TableSource
 ) {
     companion object {
         fun create(saveCommandDto: SaveCommandDto): Result<TableAggregate> = runCatching {
@@ -19,5 +19,10 @@ data class TableAggregate private constructor(
                 tableSource = TableSource.fromString(saveCommandDto.source)
             )
         }
+
+        fun of(id: UUID, table: Table, tableType: TableType, tableSource: TableSource) =
+            TableAggregate(id, table, tableType, tableSource)
     }
+
+    fun withId(id: UUID) = copy(id = id)
 }

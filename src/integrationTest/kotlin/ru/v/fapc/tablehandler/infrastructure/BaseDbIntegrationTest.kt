@@ -24,12 +24,17 @@ abstract class BaseDbIntegrationTest() {
     }
 
     companion object {
-        @Container
+//        @Container
         @JvmStatic
         val postgres = PostgreSQLContainer("postgres:16-alpine")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test")
+
+        init {
+            // Запускаем контейнер вручную один раз на весь запуск JVM
+            postgres.start()
+        }
 
         @JvmStatic
         @DynamicPropertySource

@@ -33,6 +33,33 @@ paths:
         "500":
           description: Internal server error
 
+  /table/{id}:
+    get:
+      tags:
+        - TableReadController
+      summary: Read a table by ID
+      description: Retrieves a table from the database by its UUID
+      operationId: readTable
+      x-controller-name: TableReadController
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Table retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableDto'
+        "404":
+          description: Table not found
+        "500":
+          description: Internal server error
+
 components:
   schemas:
     ResultTableDto:
@@ -46,6 +73,28 @@ components:
       required:
         - id
       description: Result of table summation
+
+    TableDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the table
+        tableType:
+          type: string
+          description: Type of the table
+        tableSource:
+          type: string
+          description: Source of the table
+        table:
+          type: string
+          description: Table data in string representation
+      required:
+        - id
+        - tableType
+        - tableSource
+        - table
     SaveCommand:
       type: object
       properties:

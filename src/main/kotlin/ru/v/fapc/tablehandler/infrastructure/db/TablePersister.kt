@@ -5,13 +5,15 @@ import ru.v.fapc.tablehandler.domain.Table
 import ru.v.fapc.tablehandler.domain.TableAggregate
 import ru.v.fapc.tablehandler.domain.TableSource
 import ru.v.fapc.tablehandler.domain.TableType
+import ru.v.fapc.tablehandler.domain.repository.TableReader
 import ru.v.fapc.tablehandler.domain.repository.TableWriter
 import ru.v.fapc.tablehandler.utils.getLogger
+import java.util.UUID
 
 @Component
 class TablePersister(
     private val tableRepository: TableRepository
-) : TableWriter {
+) : TableWriter, TableReader {
 
     private val log = getLogger()
 
@@ -34,6 +36,20 @@ class TablePersister(
         )
 
         return tableAggregate.withId(saved.id!!)
+    }
+
+    override fun findById(id: UUID): TableAggregate? {
+        log.info("Finding table by id: $id")
+        val entity = tableRepository.findById(id).orElse(null)
+        if (entity == null) {
+            log.info("Table not found for id: $id")
+            return null
+        }
+        log.info(
+            "Table found: id={}, tableType={}, tableSource={}",
+            entity.id, entity.tableType, entity.tableSource
+        )
+        return entity.toAggregate()
     }
 
     private fun TableAggregate.toEntity() = TableEntity(

@@ -27,11 +27,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultTableDto'
+                $ref: '#/components/schemas/ApiResponse'
         "400":
           description: Invalid input (e.g., missing or empty fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         "500":
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
 
   /table/{id}:
     get:
@@ -54,14 +62,53 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TableDto'
+                $ref: '#/components/schemas/ApiResponse'
         "404":
           description: Table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         "500":
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
 
 components:
   schemas:
+    ApiResponse:
+      type: object
+      description: Unified API response wrapper
+      properties:
+        status:
+          type: string
+          enum:
+            - SUCCESS
+            - ERROR
+          description: Response status
+        data:
+          type: object
+          description: Response payload (present on success)
+        error:
+          $ref: '#/components/schemas/ApiError'
+      required:
+        - status
+
+    ApiError:
+      type: object
+      description: Error details
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: array
+          items:
+            type: string
+          description: Additional error details
+
     ResultTableDto:
       type: object
       properties:
@@ -95,6 +142,7 @@ components:
         - tableType
         - tableSource
         - table
+
     SaveCommand:
       type: object
       properties:

@@ -1,12 +1,13 @@
 package ru.v.fapc.tablehandler.presentation.rest
 
 import com.example.api.TableReadControllerApi
-import com.example.model.TableDto
+import com.example.model.ApiError
+import com.example.model.ModelApiResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 import ru.v.fapc.tablehandler.application.ReadTableUseCase
 import ru.v.fapc.tablehandler.utils.getLogger
-import java.util.UUID
+import java.util.*
 
 @RestController
 class TableReadControllerImpl(
@@ -15,21 +16,21 @@ class TableReadControllerImpl(
 
     private val log = getLogger()
 
-    override fun readTable(id: UUID): ResponseEntity<TableDto> {
+    override fun readTable(id: UUID): ResponseEntity<ModelApiResponse> {
         log.info("Reading table by id: $id")
 
         val result = readTableUseCase.readTable(id)
-            ?: return ResponseEntity.notFound().build()
 
-        log.info("Table retrieved successfully: id=${result.id}")
-
-        return ResponseEntity.ok().body(
-            TableDto(
-                id = result.id,
-                tableType = result.tableType,
-                tableSource = result.tableSource,
-                table = result.table
-            )
-        )
+        if (result == null){
+            return ResponseEntity.status(404)
+                .body(ModelApiResponse(
+                    status = ModelApiResponse.Status.ERROR,
+                    error = ApiError("Table not found", listOf("Table with id=$id does not exist"))))
+        } else {
+            log.info("Table retrieved successfully: id=${result.id}")
+            return ResponseEntity.ok(ModelApiResponse(
+                status = ModelApiResponse.Status.SUCCESS,
+                data = result))
+        }
     }
 }

@@ -1,0 +1,516 @@
+{
+	"info": {
+		"name": "TableHandler API",
+		"description": "Postman коллекция для тестирования REST API проекта TableHandler.\n\nЭндпоинты:\n- POST /table/save — сохранение таблицы\n- GET /table/{id} — чтение таблицы по ID",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "savedTableId",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "POST /table/save",
+			"item": [
+				{
+					"name": "Успешное сохранение",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Статус ответа SUCCESS', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('SUCCESS');",
+									"});",
+									"",
+									"pm.test('Ответ содержит ID', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.data).to.have.property('id');",
+									"    pm.expect(json.data.id).to.match(",
+									"        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/",
+									"    );",
+									"    pm.collectionVariables.set('savedTableId', json.data.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metaData\": {\n    \"type\": \"report\",\n    \"source\": \"api\"\n  },\n  \"table\": \"Col1;Col2;Col3\\nRow1Col1;Row1Col2;Row1Col3\\nRow2Col1;Row2Col2;Row2Col3\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Ошибка: таблица меньше 2 строк",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Статус ответа ERROR', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('ERROR');",
+									"});",
+									"",
+									"pm.test('Сообщение об ошибке о размере таблицы', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error).to.have.property('message');",
+									"    pm.expect(json.error.message).to.include('Table must have at least 2 rows and 2 columns');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metaData\": {\n    \"type\": \"report\",\n    \"source\": \"api\"\n  },\n  \"table\": \"Col1;Col2\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Ошибка: таблица меньше 2 столбцов",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Статус ответа ERROR', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('ERROR');",
+									"});",
+									"",
+									"pm.test('Сообщение об ошибке о размере таблицы', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error.message).to.include('Table must have at least 2 rows and 2 columns');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metaData\": {\n    \"type\": \"report\",\n    \"source\": \"api\"\n  },\n  \"table\": \"Col1\\nRow1\\nRow2\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Ошибка: отсутствует type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Статус ответа ERROR', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('ERROR');",
+									"});",
+									"",
+									"pm.test('Сообщение об ошибке TableType', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error.message).to.include('TableType must not be null or blank');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metaData\": {\n    \"source\": \"api\"\n  },\n  \"table\": \"Col1;Col2\\nRow1;Row2\\nRow3;Row4\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Ошибка: отсутствует source",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Статус ответа ERROR', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('ERROR');",
+									"});",
+									"",
+									"pm.test('Сообщение об ошибке TableSource', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error.message).to.include('TableSource must not be null or blank');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metaData\": {\n    \"type\": \"report\"\n  },\n  \"table\": \"Col1;Col2\\nRow1;Row2\\nRow3;Row4\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Ошибка: type — пустая строка",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Сообщение об ошибке TableType', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error.message).to.include('TableType must not be null or blank');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metaData\": {\n    \"type\": \"\",\n    \"source\": \"api\"\n  },\n  \"table\": \"Col1;Col2\\nRow1;Row2\\nRow3;Row4\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Ошибка: source — пустая строка",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Сообщение об ошибке TableSource', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error.message).to.include('TableSource must not be null or blank');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metaData\": {\n    \"type\": \"report\",\n    \"source\": \"\"\n  },\n  \"table\": \"Col1;Col2\\nRow1;Row2\\nRow3;Row4\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Ошибка: невалидный JSON",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Сообщение о невалидном JSON', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error.message).to.include('Malformed request body');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{invalid json"
+						}
+					}
+				},
+				{
+					"name": "Ошибка: отсутствует тело запроса",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Ответ содержит ошибку', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('ERROR');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/table/save",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "save"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "GET /table/{id}",
+			"item": [
+				{
+					"name": "Успешное чтение (по ID из save)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Статус ответа SUCCESS', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('SUCCESS');",
+									"});",
+									"",
+									"pm.test('Ответ содержит все поля TableDto', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.data).to.have.property('id');",
+									"    pm.expect(json.data).to.have.property('tableType');",
+									"    pm.expect(json.data).to.have.property('tableSource');",
+									"    pm.expect(json.data).to.have.property('table');",
+									"});",
+									"",
+									"pm.test('ID совпадает с запрошенным', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.data.id).to.eql(pm.collectionVariables.get('savedTableId'));",
+									"});",
+									"",
+									"pm.test('Таблица содержит данные', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.data.table).to.be.a('string');",
+									"    pm.expect(json.data.table.length).to.be.above(0);",
+									"    const rows = json.data.table.split('\\n');",
+									"    pm.expect(rows.length).to.be.at.least(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/table/{{savedTableId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "{{savedTableId}}"]
+						}
+					}
+				},
+				{
+					"name": "Таблица не найдена (несуществующий UUID)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 404', function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test('Статус ответа ERROR', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('ERROR');",
+									"});",
+									"",
+									"pm.test('Сообщение о ненайденной таблице', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error.message).to.eql('Table not found');",
+									"    pm.expect(json.error.details).to.be.an('array');",
+									"    pm.expect(json.error.details[0]).to.include('does not exist');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/table/00000000-0000-0000-0000-000000000000",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "00000000-0000-0000-0000-000000000000"]
+						}
+					}
+				},
+				{
+					"name": "Невалидный UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/table/not-a-uuid",
+							"host": ["{{baseUrl}}"],
+							"path": ["table", "not-a-uuid"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

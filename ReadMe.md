@@ -11,22 +11,32 @@
 ### Задаем значение переменных
 
 ```bash
-$env:REGISTRY_URL="localhost:5001"
-$env:IMAGE_NAME="tablehandler"
-$env:IMAGE_TAG="1.0.1"
-$env:APP_PORT="8081"
+ $env:REGISTRY_URL="localhost:5001"
+ $env:IMAGE_NAME="tablehandler"
+ $env:IMAGE_TAG="1.0.1"
+ $env:APP_PORT="8081"
 ```
 
 ### Сборка и отправка в репозиторий
 
 ```bash
 docker compose build --push
+
+ $env:REGISTRY_URL="localhost:5001"
+ $env:IMAGE_NAME="table_handler"
+ $env:IMAGE_TAG="1.0.1"
+ $env:APP_PORT="8081"
 ```
 
 ### Запуск
 
 ```bash
 docker compose up -d --no-build
+
+ $env:REGISTRY_URL="localhost:5001"
+ $env:IMAGE_NAME="table_handler"
+ $env:IMAGE_TAG="1.0.1"
+ $env:APP_PORT="8081"
 ```
 
 Запускает контейнер из репозитория `localhost:5000`. Приложение будет доступно на порту, указанном в `APP_PORT` (по умолчанию `8081`).
